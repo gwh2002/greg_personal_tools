@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "podcast-transcripts"
+version = "0.1.0"
+description = "Create local Markdown transcript packages from podcast and YouTube URLs."
+requires-python = ">=3.10"
+dependencies = [
+  "youtube-transcript-api>=0.6.0",
+  "openai-whisper>=20231117",
+]
+
+[project.scripts]
+podcast-transcripts = "podcast_transcripts:main"
+
+[tool.setuptools]
+py-modules = ["podcast_transcripts"]
