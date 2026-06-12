@@ -1,111 +1,101 @@
-# Podcast Transcripts
+# greg_personal_tools
 
-Create local Markdown transcript packages from Apple Podcasts, RSS feed, and direct YouTube URLs.
+Greg Hills' personal tools repo. It serves two purposes:
 
-## What It Does
+1. A **Claude Code plugin marketplace** (`greg-tools` plugin) — a small set of
+   generic, public-safe skills you can install into any project with Claude Code.
+2. A standalone **podcast transcript** utility (see
+   [`README_podcast_transcripts.md`](./README_podcast_transcripts.md)).
 
-- Uses official RSS `podcast:transcript` links when available.
-- Uses direct YouTube transcripts for YouTube URLs when available.
-- Falls back to local Whisper transcription from RSS audio enclosures.
-- Writes raw transcripts, optional readable derivatives, optional extractive summaries, a batch index, combined transcript files, and failure notes.
-- Does not require an LLM API key.
+---
 
-## Setup
+## Claude Code Plugin: `greg-tools`
 
-```bash
-git clone https://github.com/gwh2002/greg_personal_tools.git
-cd greg_personal_tools
-python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install --upgrade pip
-python3 -m pip install -r requirements.txt
-```
+A bundle of generic, public-safe Claude Code skills. One plugin, several skills,
+one-command install.
 
-Whisper audio fallback requires `ffmpeg`:
+### Install
 
-```bash
-brew install ffmpeg
-```
-
-On Linux, install `ffmpeg` with your system package manager.
-
-## Quick Start
-
-```bash
-python3 podcast_transcripts.py \
-  --readable \
-  --summary \
-  "https://www.youtube.com/watch?v=VIDEO_ID"
-```
-
-```bash
-python3 podcast_transcripts.py \
-  --batch-slug people-who-plan \
-  --latest 5 \
-  --readable \
-  "https://podcasts.apple.com/ca/podcast/people-who-plan-inside-the-minds-of-modern-operators/id1886794877"
-```
-
-Outputs are written by default to:
+In any project, from inside Claude Code:
 
 ```text
-podcast_transcript_outputs/<batch_slug>/
+/plugin marketplace add gwh2002/greg_personal_tools
+/plugin install greg-tools@greg-personal-tools
 ```
 
-Each successful run writes:
+- The first command registers this repo as a marketplace named
+  `greg-personal-tools`.
+- The second installs the `greg-tools` plugin from it.
+- Update later with `/plugin marketplace update greg-personal-tools`.
 
-- `index.md`
-- `combined_transcripts.md`
-- `episodes/*.md`
-- `episodes_readable/*.md` when `--readable` is passed
-- `summaries/*.md` when `--summary` is passed
-- `combined_readable_transcripts.md` when `--readable` is passed
-- `combined_summaries.md` when `--summary` is passed
-- `failures.md` when one or more URLs fail
+### Local development / testing
 
-## Common Commands
+To try the plugin without installing from GitHub, clone this repo and run:
 
 ```bash
-# Show help
-python3 podcast_transcripts.py --help
-
-# Metadata-only dry run
-python3 podcast_transcripts.py --dry-run --batch-slug test-batch "https://example.com/feed.xml"
-
-# Process every episode in a feed
-python3 podcast_transcripts.py --all --batch-slug full-feed "https://example.com/feed.xml"
-
-# Process episodes after a date
-python3 podcast_transcripts.py --since 2026-04-01 --batch-slug recent "https://example.com/feed.xml"
-
-# Use a custom output folder
-python3 podcast_transcripts.py --output-root ./outputs --batch-slug batch-name "https://example.com/feed.xml"
-
-# Re-run and overwrite existing outputs
-python3 podcast_transcripts.py --force --batch-slug batch-name "https://example.com/feed.xml"
+claude --plugin-dir ./greg-tools
 ```
 
-You can also install the console command:
+Validate the manifests:
 
 ```bash
-python3 -m pip install -e .
-podcast-transcripts --help
+claude plugin validate ./greg-tools     # plugin manifest
+claude plugin validate .                 # marketplace manifest
 ```
 
-## Input Types
+### Invocation / namespacing
 
-- Apple Podcasts show URL: processes the latest 5 episodes by default.
-- Apple Podcasts episode URL: processes the single episode.
-- RSS feed URL: processes the latest 5 feed items by default.
-- Direct YouTube URL: processes the single video.
-- Text file of URLs: use `--input-file /path/to/urls.txt`.
+Skills trigger automatically from their descriptions (e.g. "make me a
+business-facing diagram of this workflow"). You can also invoke them explicitly
+with the plugin namespace:
 
-## Validation
-
-```bash
-python3 -m unittest discover -s . -p 'test_*.py'
+```text
+/greg-tools:biz-diagram
+/greg-tools:excalidraw-diagram
+/greg-tools:sheet-download
+/greg-tools:sync-docs
+/greg-tools:pending
 ```
 
-## Archive
+### Skill showcase
 
-The older personal-tools repo contents were moved to `oct_2025/` so the repo root can focus on this utility.
+| Skill | What it does | Notes / prerequisites |
+|---|---|---|
+| **biz-diagram** | Stakeholder-facing, three-lane Excalidraw process diagram, rendered to PNG via a bundled Pillow renderer (`bin/render_biz_diagram_png.py`). For business audiences — no scripts/paths/schemas. | `pip install "Pillow>=10"` |
+| **excalidraw-diagram** | Technical Excalidraw diagrams that *argue visually* — evidence artifacts, multi-zoom layout, and a Playwright render-and-fix validation loop. Brand-customizable via `references/color-palette.md`. | `uv` + `playwright install chromium` for the render loop |
+| **sheet-download** | Downloads a Google Sheet to a local CSV at a path you specify. | A connected Google account (e.g. a Google Drive/Sheets MCP server) |
+| **sync-docs** | Syncs Google Docs to local markdown via a small YAML registry, with a frontmatter contract and optional push-back. | A connected Google Docs/Drive account (e.g. via MCP) |
+| **pending** | Scans the current conversation and working tree for loose ends: uncommitted changes, open issues/PRs, unfinished action items, missing changelog updates. | None |
+
+The `excalidraw-diagram` skill is vendored from the open-source
+[excalidraw-diagram-skill](https://github.com/coleam00/excalidraw-diagram-skill).
+
+### Why one plugin (not one-per-skill)?
+
+A single `greg-tools` plugin means a single `/plugin install`. With only a
+handful of skills, per-skill plugins would add install friction for no real
+benefit. If the skill count grows or skills diverge in their dependencies, the
+bundle can be split later — the marketplace already supports multiple plugin
+entries.
+
+### Repo layout
+
+```text
+greg_personal_tools/
+├── .claude-plugin/
+│   └── marketplace.json          # marketplace catalog (name: greg-personal-tools)
+├── greg-tools/                    # the plugin
+│   ├── .claude-plugin/
+│   │   └── plugin.json
+│   ├── bin/
+│   │   └── render_biz_diagram_png.py
+│   └── skills/
+│       ├── biz-diagram/SKILL.md
+│       ├── excalidraw-diagram/SKILL.md   (+ references/)
+│       ├── sheet-download/SKILL.md
+│       ├── sync-docs/SKILL.md
+│       └── pending/SKILL.md
+├── README.md
+├── README_podcast_transcripts.md
+└── podcast_transcripts.py ...
+```

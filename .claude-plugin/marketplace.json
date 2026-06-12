@@ -1,0 +1,16 @@
+{
+  "name": "greg-personal-tools",
+  "description": "Greg Hills' personal Claude Code marketplace — a small set of generic, public-safe skills bundled as the greg-tools plugin.",
+  "owner": {
+    "name": "Greg Hills",
+    "url": "https://github.com/gwh2002"
+  },
+  "plugins": [
+    {
+      "name": "greg-tools",
+      "source": "./greg-tools",
+      "description": "Generic, public-safe Claude Code skills: business and technical Excalidraw diagrams, Google Sheets download, Google Docs sync, and a pending-loose-ends check.",
+      "version": "0.1.0"
+    }
+  ]
+}
