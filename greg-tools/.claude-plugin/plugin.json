@@ -1,0 +1,8 @@
+{
+  "name": "greg-tools",
+  "description": "Generic, public-safe Claude Code skills: business and technical Excalidraw diagrams, Google Sheets download, Google Docs sync, and a pending-loose-ends check.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Greg Hills"
+  }
+}
