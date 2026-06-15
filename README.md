@@ -1,4 +1,13 @@
-# Podcast Transcripts
+# Greg Personal Tools
+
+Small personal utilities and agent workflows.
+
+## Tools
+
+- `podcast_transcripts.py`: create local Markdown transcript packages from Apple Podcasts, RSS feed, and direct YouTube URLs.
+- `babysit-pr/`: shareable agent skill for taking a GitHub pull request through automated review follow-through to a human merge handoff.
+
+## Podcast Transcripts
 
 Create local Markdown transcript packages from Apple Podcasts, RSS feed, and direct YouTube URLs.
 
